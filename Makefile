@@ -51,3 +51,17 @@ install-keda-http-addon:
 	helm repo add kedacore https://kedacore.github.io/charts  
 	helm repo update
 	helm install http-add-on kedacore/keda-add-ons-http --namespace keda-http-addon --create-namespace
+
+.PHONY: install-argocd
+install-argocd:
+	kubectl create namespace argocd
+	kubectl apply -n argocd --server-side --force-conflicts -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+.PHONY: access-argocd
+access-argocd:
+	@echo "Username: admin"
+	@echo "Admin password:"
+	@kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d
+	@echo ""
+	@echo "Check the ArgoCD UI at http://localhost:8080"
+	kubectl port-forward svc/argocd-server -n argocd 8080:443
