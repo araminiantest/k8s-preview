@@ -17,9 +17,9 @@ spec:
          prefix: {{ printf "todo-%s-pr" (toString .Values.preview.PRNumber) }}
     route:
     - destination:
-        host: {{ include "todo-app.fullname" . }}
-        port:
-          number: {{ .Values.service.port }}
+        host: keda-add-ons-http-interceptor-proxy.keda-http-addon.svc.cluster.local
+        port: 
+          number: 8080
   - match:
      - authority:
          prefix: {{ printf "todo-%s-pr-%s" (toString .Values.preview.PRNumber) .Values.preview.commitID }}
