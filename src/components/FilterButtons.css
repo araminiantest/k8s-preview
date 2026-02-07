@@ -1,0 +1,67 @@
+.filter-buttons {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 30px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.filter-buttons .filter-button {
+    padding: 10px 20px;
+    border: 2px solid #e0e0e0;
+    background: white;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    font-weight: 500;
+    color: #666;
+    font-family: inherit;
+}
+
+.filter-buttons .filter-button:hover {
+    background-color: #f8f9fa;
+    border-color: #667eea;
+    color: #667eea;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.15);
+}
+
+.filter-buttons .filter-button.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    transform: translateY(-2px);
+}
+
+.filter-buttons .filter-button.active:hover {
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+@media (max-width: 480px) {
+    .filter-buttons {
+        gap: 8px;
+    }
+    
+    .filter-buttons .filter-button {
+        flex: 1;
+        min-width: 0;
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .filter-buttons .filter-button {
+        background: #2a2a3e;
+        border-color: #3a3a4e;
+        color: #ccc;
+    }
+    
+    .filter-buttons .filter-button:hover {
+        background: #3a3a4e;
+        border-color: #667eea;
+        color: #fff;
+    }
+}

@@ -1,0 +1,41 @@
+---
+apiVersion: skaffold/v3
+kind: Config
+metadata:
+  name: todo-app
+build:
+  local:
+    push: false
+  artifacts:
+    - image: rminz/todo-app # TODO: Replace it with your own image registry
+      platforms:
+        - linux/amd64
+      docker:
+        dockerfile: Dockerfile
+manifests:
+  helm:
+    releases:
+      - name: "{{.TIER}}"
+        chartPath: kubernetes/charts/todo-app
+        valuesFiles:
+          - kubernetes/deployment-values/{{.TIER}}.yaml
+        setValueTemplates:
+          tier: "{{.TIER}}"
+          version: "{{.GIT_REV}}"
+          preview.PRNumber: "{{.GIT_PR_NUMBER}}"
+          preview.commitID: "{{.GIT_REV}}"
+          image.repository: "{{.IMAGE_REPO}}"
+          image.tag: "{{.ENVIRONMENT}}"
+          image.digest: "{{.IMAGE_DIGEST}}"
+profiles:
+  - name: ci
+    activation:
+      - env: CI=true
+    build:
+      tagPolicy:
+        envTemplate:
+          template: "{{.GIT_REV}}"
+      local:
+        push: true
+        concurrency: 0
+        useBuildkit: true

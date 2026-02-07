@@ -1,0 +1,23 @@
+# Default values for todo-app
+preview:
+  enabled: false
+  PRNumber: ""
+  commitID: ""
+
+image:
+  pullPolicy: IfNotPresent
+
+replicaCount: 2
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
