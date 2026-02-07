@@ -14,10 +14,11 @@ spec:
     metadata:
       labels:
         {{- include "todo-app.labels" . | nindent 8 }}
+        sidecar.istio.io/inject: "true"
     spec:
       containers:
       - name: {{ .Chart.Name }}
-        image: "{{ printf "%s:%s@%s" .Values.image.repository .Values.image.tag .Values.image.digest }}"
+        image: "{{ printf "%s:%s" .Values.image.repository .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - name: http

@@ -1,0 +1,11 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: todo
+  namespace: {{ include "todo-app.namespace" . }}
+spec:
+  host: {{ include "todo-app.fullname" . }}
+  subsets:
+  - name: preview-{{ toString .Values.preview.commitID }}
+    labels:
+      version: {{ toString .Values.preview.commitID }}

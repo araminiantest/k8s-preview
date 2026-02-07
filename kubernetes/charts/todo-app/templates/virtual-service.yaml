@@ -1,0 +1,31 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: todo
+  namespace: {{ include "todo-app.namespace" . }}
+  labels:
+    {{- include "todo-app.labels" . | nindent 4 }}
+spec:
+  gateways:
+    - istio-system/ingress-gateway
+  hosts:
+    - {{ printf "todo-%s-pr.%s.sslip.io" (toString .Values.preview.PRNumber) .Values.istioLoadBalancerIP }}
+    - {{ printf "todo-%s-pr-%s.%s.sslip.io" (toString .Values.preview.PRNumber) .Values.preview.commitID .Values.istioLoadBalancerIP }}
+  http:
+  - match:
+     - authority:
+         prefix: {{ printf "todo-%s-pr" (toString .Values.preview.PRNumber) }}
+    route:
+    - destination:
+        host: {{ include "todo-app.fullname" . }}
+        port:
+          number: {{ .Values.service.port }}
+  - match:
+     - authority:
+         prefix: {{ printf "todo-%s-pr-%s" (toString .Values.preview.PRNumber) .Values.preview.commitID }}
+    route:
+    - destination:
+        host: {{ include "todo-app.fullname" . }}
+        port:
+          number: {{ .Values.service.port }}
+        subset: preview-{{ toString .Values.preview.commitID }}

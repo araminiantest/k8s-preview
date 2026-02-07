@@ -4,3 +4,4 @@ metadata:
   name: {{ include "todo-app.namespace" . }}
   labels:
     {{- include "todo-app.labels" . | nindent 4 }}
+    istio-injection: enabled
