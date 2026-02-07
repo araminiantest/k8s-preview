@@ -38,8 +38,8 @@ tier: {{ .Values.tier }}
 {{ include "todo-app.selectorLabels" . }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- if .Values.preview.enabled }}
-pr_number: {{ .Values.preview.PRNumber }}
-version: {{ .Values.version }}
+pr_number: {{ printf "pr-%d" .Values.preview.PRNumber | quote }}
+version: {{ toString .Values.version | quote }}
 {{- end }}
 {{- end }}
 
@@ -56,7 +56,8 @@ Namespace name
 */}}
 {{- define "todo-app.namespace" -}}
 {{- if .Values.preview.enabled }}
-{{- printf "%s-preview-todo-app" .Values.preview.PRNumber }}
+{{- printf "preview-%s-todo-app" (toString .Values.preview.PRNumber) }}
 {{- else }}
 {{- printf "todo-app" }}
+{{- end }}
 {{- end }}

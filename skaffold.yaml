@@ -18,14 +18,14 @@ manifests:
       - name: "{{.TIER}}"
         chartPath: kubernetes/charts/todo-app
         valuesFiles:
-          - kubernetes/deployment-values/{{.TIER}}.yaml
+          - kubernetes/deployment-values/{{.TIER}}/values.yaml
         setValueTemplates:
           tier: "{{.TIER}}"
           version: "{{.GIT_REV}}"
           preview.PRNumber: "{{.GIT_PR_NUMBER}}"
           preview.commitID: "{{.GIT_REV}}"
           image.repository: "{{.IMAGE_REPO}}"
-          image.tag: "{{.ENVIRONMENT}}"
+          image.tag: "{{.TIER}}"
           image.digest: "{{.IMAGE_DIGEST}}"
 profiles:
   - name: ci
