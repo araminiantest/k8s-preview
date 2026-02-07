@@ -4,12 +4,8 @@ kind: Config
 metadata:
   name: todo-app
 build:
-  local:
-    push: false
   artifacts:
     - image: rminz/todo-app # TODO: Replace it with your own image registry
-      platforms:
-        - linux/amd64
       docker:
         dockerfile: Dockerfile
 manifests:
@@ -25,8 +21,7 @@ manifests:
           preview.PRNumber: "{{.GIT_PR_NUMBER}}"
           preview.commitID: "{{.GIT_REV}}"
           image.repository: "{{.IMAGE_REPO}}"
-          image.tag: "{{.TIER}}"
-          image.digest: "{{.IMAGE_DIGEST}}"
+          image.tag: "{{.GIT_REV}}"
 profiles:
   - name: ci
     activation:
@@ -37,5 +32,5 @@ profiles:
           template: "{{.GIT_REV}}"
       local:
         push: true
-        concurrency: 0
+        concurrency: 1
         useBuildkit: true
