@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -40,3 +40,32 @@ jobs:
       - name: Build and Push Docker Image
         run: |
           make build
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v6
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - uses: yokawasa/action-setup-kube-tools@3e3886c11bfa25fe33f8eb90f59542dd151da442 # v0.13.1
+        with:
+          setup-tools: |
+            skaffold
+            helm
+          skaffold: '2.17.1'
+          helm: '3.19.0'
+
+      - name: Render Preview Manifests
+        run: |
+          make render-preview
+
+      - name: Push Manifest to Branch 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: manifests/preview/${{ env.GIT_PR_NUMBER }}
+          branch: preview-${{ env.GIT_PR_NUMBER }}
