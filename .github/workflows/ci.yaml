@@ -1,6 +1,6 @@
 name: ci-preview
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
   id-token: write
 
@@ -74,3 +74,4 @@ jobs:
         with:
           folder: manifests/preview/${{ env.GIT_PR_NUMBER }}
           branch: preview-${{ env.GIT_PR_NUMBER }}
+          token: ${{ secrets.GITHUB_TOKEN }}
