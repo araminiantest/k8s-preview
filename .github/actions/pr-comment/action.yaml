@@ -61,4 +61,4 @@ runs:
           | Automated Tests | Commit Preview | Latest changes |
         repo-token: ${{ inputs.git_access_token }}
         # Message id to use when searching existing comments. If found, updates the existing (sticky comment).
-        message-id: ${{ inputs.service_name }}-${{ inputs.pr_number }}-${{ inputs.git_rev }}
+        message-id: ${{ inputs.service_name }}-${{ inputs.pr_number }}
