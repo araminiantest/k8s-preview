@@ -6,7 +6,9 @@ metadata:
   labels:
     {{- include "todo-app.labels" . | nindent 4 }}
 spec:
+  {{- if .Values.preview.enabled }}
   replicas: {{ .Values.replicaCount }}
+  {{- end }}
   selector:
     matchLabels:
       {{- include "todo-app.selectorLabels" . | nindent 6 }}

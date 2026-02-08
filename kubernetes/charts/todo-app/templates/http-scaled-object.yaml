@@ -23,5 +23,5 @@ spec:
       granularity: 1s
       # targetValue: This is the target value for the scaling configuration.
       targetValue: 1
-      window: 1m
+      window: 1m0s
 {{- end }}

@@ -1,0 +1,38 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: todo-app-preview-environment
+  namespace: argocd
+spec:
+  goTemplate: true
+  syncPolicy:
+    preserveResourcesOnDeletion: false
+  generators:
+  - pullRequest:
+      github:
+        owner: $OWNER
+        repo: $REPO
+        labels:
+        - preview
+  template:
+    metadata:
+      name: todo-app-preview-{{.number}}
+      labels:
+        environment: preview
+        app: todo-app
+    spec:
+      project: default
+      source:
+        directory:
+          include: '{*.yml,*.yaml}'
+        repoURL: https://github.com/$OWNER/$REPO.git
+        targetRevision: preview-{{.number}}
+        path: .
+      destination:
+        name: in-cluster
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: false
+          allowEmpty: true
