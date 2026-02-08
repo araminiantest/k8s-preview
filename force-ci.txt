@@ -1,2 +1,2 @@
 # A File to integrate CI/CD with GitHub Actions
-Counter: 1
+Counter: 2

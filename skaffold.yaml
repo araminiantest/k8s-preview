@@ -6,6 +6,9 @@ metadata:
 build:
   artifacts:
     - image: rminz/todo-app # TODO: Replace it with your own image registry
+      platforms:
+        - linux/amd64
+        - linux/arm64
       docker:
         dockerfile: Dockerfile
 manifests:
