@@ -65,3 +65,15 @@ access-argocd:
 	@echo ""
 	@echo "Check the ArgoCD UI at http://localhost:8080"
 	kubectl port-forward svc/argocd-server -n argocd 8080:443
+
+.PHONY: add-argocd-applicationset
+add-argocd-applicationset:
+	@echo "Adding ArgoCD Preview ApplicationSet"
+	@echo "Please provide the OWNER of the repository:"; \
+	read OWNER; \
+	echo "Please provide the REPO of the repository:"; \
+	read REPO; \
+	echo "OWNER=$$OWNER"; \
+	echo "REPO=$$REPO"; \
+	export OWNER REPO; \
+	envsubst < kubernetes/argocd/applicationSet.yaml | kubectl apply -f -
