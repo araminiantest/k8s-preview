@@ -106,7 +106,7 @@ jobs:
           git_access_token: ${{ secrets.GITHUB_TOKEN }}
           pr_number: ${{ env.GIT_PR_NUMBER }}
           istio_load_balancer_ip: 127.0.0.1.sslip.io
-          git_rev: ${{ steps.short-sha.outputs.short_sha }}
+          git_rev: ${{ steps.short-sha.outputs.sha }}
           service_name: todo
 
   delete-preview:

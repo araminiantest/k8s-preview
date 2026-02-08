@@ -26,8 +26,6 @@ runs:
       shell: bash
       id: ingress_urls
       run: |-
-        #     - todo-123-pr.127.0.0.1.sslip.io
-        #     - todo-123-pr-827f6a4.127.0.0.1.sslip.io
         commit_url="http://${{ inputs.service_name }}-${{ inputs.pr_number }}-${{ inputs.git_rev }}.${{ inputs.istio_load_balancer_ip }}"
         pr_url="http://${{ inputs.service_name }}-${{ inputs.pr_number }}.${{ inputs.istio_load_balancer_ip }}"
         echo "commit_url=$commit_url" >> $GITHUB_OUTPUT
@@ -37,8 +35,30 @@ runs:
       uses: mshick/add-pr-comment@b8f338c590a895d50bcbfa6c5859251edc8952fc # v2.8.2
       with:
         message: |
+          ## 📋 Preview Environment Guide
+          
+          ### 🔗 Available URLs
+          
           | :gear: ${{ inputs.service_name }} | :eyes: [PR Preview](${{ steps.ingress_urls.outputs.pr_url }}) | :eyeglasses: [Commit Preview](${{ steps.ingress_urls.outputs.commit_url }}) |
           |---|---|---|
+          
+          ### 📖 Usage Instructions
+          
+          **For Manual Testing (Users):**
+          - ✅ Use **PR Preview URL** - Points to healthy, stable Pods
+          - ✅ Recommended for manual testing and verification
+          
+          **For Automated Testing:**
+          - 🧪 Use **Commit Preview URL** - Points to the latest commit changes
+          - ⚠️ **Important:** May not be healthy immediately after deployment
+          - ⚠️ **Before running tests:** Verify Pods are scaled up by checking the PR Preview URL first
+          
+          ### ⚡ Quick Reference
+          
+          | User Type | Use This URL | Why |
+          |-----------|--------------|-----|
+          | Manual Testers | PR Preview | Stable and healthy |
+          | Automated Tests | Commit Preview | Latest changes |
         repo-token: ${{ inputs.git_access_token }}
         # Message id to use when searching existing comments. If found, updates the existing (sticky comment).
         message-id: ${{ inputs.service_name }}-${{ inputs.pr_number }}-${{ inputs.git_rev }}
