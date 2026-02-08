@@ -16,6 +16,30 @@ And yes, you can run integration tests against these environments too. Because m
 
 This guide is designed for local Kubernetes clusters like Minikube, but don't let that stop you—it'll work on any Kubernetes cluster that's willing to play along.
 
+### The Big Picture
+
+Here's how everything fits together:
+
+```mermaid
+graph TB
+    Dev[Developer] -->|1. Push Code| PR[Pull Request]
+    PR -->|2. Triggers| GHA[GitHub Actions]
+    GHA -->|3. Build & Push| Docker[Docker Hub]
+    GHA -->|4. Render Manifests| Branch[Temporary Branch]
+    ArgoCD[ArgoCD ApplicationSet] -->|5. Watches| Branch
+    ArgoCD -->|6. Deploys| K8s[Kubernetes Cluster]
+    K8s -->|7. Creates| Preview[Preview Environment]
+    KEDA[KEDA HTTP Add-on] -->|8. Scales to Zero| Preview
+    User[User/Tester] -->|9. Access via URL| Istio[Istio Gateway]
+    Istio -->|10. Routes Traffic| KEDA
+    KEDA -->|11. Scales Up & Forward| Preview
+    
+    style Preview fill:#4CAF50
+    style KEDA fill:#FF9800
+    style ArgoCD fill:#2196F3
+    style Docker fill:#2496ED
+```
+
 ## The Tools You'll Need (AKA The Shopping List)
 
 Before we dive in, let's gather our tools. Think of this as assembling the Avengers, but for Kubernetes:
@@ -172,6 +196,31 @@ The solution? KEDA HTTP Add-on! It acts as a smart proxy that:
 
 It's like having lights that automatically turn off when you leave the room, except this saves you actual money!
 
+Here's how the scaling flow works:
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Istio as Istio Gateway
+    participant KEDA as KEDA Interceptor
+    participant K8s as Deployment
+    participant Pod as Application Pod
+    
+    Note over Pod: Scaled to 0 replicas
+    User->>Istio: HTTP Request
+    Istio->>KEDA: Forward Request
+    KEDA->>KEDA: Hold Request
+    KEDA->>K8s: Scale to 1 replica
+    K8s->>Pod: Start Pod
+    Pod->>K8s: Ready!
+    KEDA->>Pod: Forward Held Request
+    Pod->>User: Response
+    
+    Note over Pod: After 5 min inactivity...
+    KEDA->>Pod: Scale to 0
+    Note over Pod: Scaled to 0 replicas
+```
+
 Here's what an `HTTPScaledObject` looks like:
 
 ```yaml
@@ -273,9 +322,48 @@ I reopened the merged PR and started digging. Turns out, one of the commits in t
 
 The answer? **Kubernetes rolling updates.**
 
+Here's what happens during a rolling update:
+
+```mermaid
+graph LR
+    subgraph "Rolling Update Flow"
+        A[Old Pod v1<br/>✅ Healthy] -->|Still Running| B[Service Routes Here]
+        C[New Pod v2<br/>❌ Crashing] -->|Not Ready| D[Service Ignores This]
+        E[Tests] -->|Hit Service| B
+    end
+    
+    style A fill:#4CAF50
+    style C fill:#f44336
+    style B fill:#4CAF50
+    style D fill:#f44336
+```
+
 When we deployed the broken commit, Kubernetes started a new Pod (v2) that immediately began crashing. But the old Pod (v1) was still happily running and serving traffic. Kubernetes only removes old Pods once the new ones are healthy. So all our tests were hitting the old, working version while the new version quietly crashed in the background.
 
 Our setup could catch bugs in the *business logic*, but it completely missed errors that caused Pods to crash on startup. Not great, Bob.
+
+**The Solution: Two URLs**
+
+```mermaid
+graph TB
+    subgraph "PR URL - Always Healthy"
+        PR[PR URL] --> Service[Kubernetes Service]
+        Service --> V1[Old Pod v1 ✅]
+        Service -.X Ignores.-> V2[New Pod v2 ❌]
+    end
+    
+    subgraph "Commit URL - Exact Version"
+        Commit[Commit URL] --> DR[DestinationRule]
+        DR --> V2C[New Pod v2 ❌]
+        DR -.X Bypasses Service.-> Service2[ ]
+    end
+    
+    style V1 fill:#4CAF50
+    style V2 fill:#f44336
+    style V2C fill:#f44336
+    style PR fill:#2196F3
+    style Commit fill:#FF9800
+```
 
 So we added the **Commit URL**. This URL points directly to the latest commit's Pods—healthy or not. If your code crashes, your tests will know about it immediately.
 
@@ -308,6 +396,24 @@ And that, my friends, is why we have two URLs. The PR URL is for humans to brows
 ## Let's Actually Build This Thing!
 
 Time to get our hands dirty! Here's your checklist:
+
+```mermaid
+graph TD
+    Start([Start Setup]) --> Tools[Install Prerequisite Tools]
+    Tools --> Fork[Fork GitHub Repository]
+    Fork --> Docker[Configure Docker Hub]
+    Docker --> Skaffold[Update skaffold.yaml]
+    Skaffold --> Gateway[Create Istio Gateway]
+    Gateway --> IP[Get Istio Load Balancer IP]
+    IP --> Values[Update values.yaml]
+    Values --> CI[Update ci-preview.yaml]
+    CI --> AppSet[Create ApplicationSet]
+    AppSet --> Done([Ready to Deploy! 🚀])
+    
+    style Start fill:#4CAF50
+    style Done fill:#4CAF50
+    style AppSet fill:#2196F3
+```
 
 - [ ] Install all the prerequisite tools (check the shopping list above)
 - [ ] Fork the GitHub repository
