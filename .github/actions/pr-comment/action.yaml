@@ -1,0 +1,44 @@
+# yamllint disable rule:comments rule:line-length
+---
+name: "PR Comment"
+description: "PR Comment"
+inputs:
+  git_access_token:
+    description: "Git access token"
+    required: true
+  pr_number:
+    description: "PR number"
+    required: true
+  istio_load_balancer_ip:
+    description: "Istio load balancer IP with SSLIP.io domain"
+    required: true
+    default: "127.0.0.1.sslip.io"
+  git_rev:
+    description: "Short Git commit hash"
+    required: true
+  service_name:
+    description: "Service name"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: URLs
+      shell: bash
+      id: ingress_urls
+      run: |-
+        #     - todo-123-pr.127.0.0.1.sslip.io
+        #     - todo-123-pr-827f6a4.127.0.0.1.sslip.io
+        commit_url="http://${{ inputs.service_name }}-${{ inputs.pr_number }}-${{ inputs.git_rev }}.${{ inputs.istio_load_balancer_ip }}"
+        pr_url="http://${{ inputs.service_name }}-${{ inputs.pr_number }}.${{ inputs.istio_load_balancer_ip }}"
+        echo "commit_url=$commit_url" >> $GITHUB_OUTPUT
+        echo "pr_url=$pr_url" >> $GITHUB_OUTPUT
+
+    - name: comment PR
+      uses: mshick/add-pr-comment@b8f338c590a895d50bcbfa6c5859251edc8952fc # v2.8.2
+      with:
+        message: |
+          | :gear: ${{ inputs.service_name }} | :eyes: [PR Preview](${{ steps.ingress_urls.outputs.pr_url }}) | :eyeglasses: [Commit Preview](${{ steps.ingress_urls.outputs.commit_url }}) |
+          |---|---|---|
+        repo-token: ${{ inputs.git_access_token }}
+        # Message id to use when searching existing comments. If found, updates the existing (sticky comment).
+        message-id: ${{ inputs.service_name }}-${{ inputs.pr_number }}-${{ inputs.git_rev }}
