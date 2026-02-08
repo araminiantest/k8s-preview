@@ -37,7 +37,7 @@ enable-istio:
 	minikube addons enable istio
 
 .PHONY: create-gateway
-create-gateway:
+create-istio-gateway:
 	kubectl apply -f kubernetes/istio/gateway.yaml
 
 .PHONY: install-keda
@@ -69,9 +69,9 @@ access-argocd:
 .PHONY: add-argocd-applicationset
 add-argocd-applicationset:
 	@echo "Adding ArgoCD Preview ApplicationSet"
-	@echo "Please provide the OWNER of the repository:"; \
+	@echo "Please provide the Github username (e.g. araminian):"; \
 	read OWNER; \
-	echo "Please provide the REPO of the repository:"; \
+	echo "Please provide the repository name (e.g. k8s-preview):"; \
 	read REPO; \
 	echo "OWNER=$$OWNER"; \
 	echo "REPO=$$REPO"; \

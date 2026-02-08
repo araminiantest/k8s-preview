@@ -105,6 +105,7 @@ jobs:
         with:
           git_access_token: ${{ secrets.GITHUB_TOKEN }}
           pr_number: ${{ env.GIT_PR_NUMBER }}
+          # TODO: Replace it with the actual IP of the load balancer (run `minikube tunnel` to get the IP)
           istio_load_balancer_ip: 127.0.0.1.sslip.io
           git_rev: ${{ steps.short-sha.outputs.sha }}
           service_name: todo

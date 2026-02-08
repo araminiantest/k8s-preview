@@ -10,6 +10,8 @@ spec:
     preserveResourcesOnDeletion: false
   generators:
   - pullRequest:
+      # When using a Pull Request generator, the ApplicationSet controller polls every `requeueAfterSeconds` interval (defaulting to every 30 minutes) to detect changes.
+      requeueAfterSeconds: 90 # Poll every 90 seconds to detect changes.
       github:
         owner: $OWNER
         repo: $REPO
