@@ -26,8 +26,8 @@ runs:
       shell: bash
       id: ingress_urls
       run: |-
-        commit_url="http://${{ inputs.service_name }}-${{ inputs.pr_number }}-${{ inputs.git_rev }}.${{ inputs.istio_load_balancer_ip }}"
-        pr_url="http://${{ inputs.service_name }}-${{ inputs.pr_number }}.${{ inputs.istio_load_balancer_ip }}"
+        commit_url="http://${{ inputs.service_name }}-${{ inputs.pr_number }}-pr-${{ inputs.git_rev }}.${{ inputs.istio_load_balancer_ip }}"
+        pr_url="http://${{ inputs.service_name }}-${{ inputs.pr_number }}-pr.${{ inputs.istio_load_balancer_ip }}"
         echo "commit_url=$commit_url" >> $GITHUB_OUTPUT
         echo "pr_url=$pr_url" >> $GITHUB_OUTPUT
 
